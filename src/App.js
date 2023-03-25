@@ -1,12 +1,11 @@
-//import logo from './logo.svg';
-
 // import "./App.css";
+// import axios from "axios";
 // import { Configuration, OpenAIApi } from "openai";
 // import { useState } from "react";
 
 // function App() {
 //   const [inputTexts, setInputTexts] = useState(["", "", ""]);
-//   const [response, setResponse] = useState("");
+//   const [responses, setResponses] = useState(["", "", ""]);
 //   const [loading, setLoading] = useState(false);
 
 //   const configuration = new Configuration({
@@ -14,13 +13,19 @@
 //   });
 //   const openai = new OpenAIApi(configuration);
 
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
+//   const handleSubmit = (index) => {
 //     setLoading(true);
-//     const prompt = inputTexts.join(" "); // concatenate input texts into a single string
+//     let prompt = inputTexts[index]; // get prompt for the input at the given index
+//     if (index === 0) {
+//       prompt = "I want colours that will evoke " + prompt+".";
+//     }
+//     if (index === 2) {
+//       prompt = "I want fonts that will evoke " + prompt+". Provide me links to corresponding fonts in Google Fonts.";
+//     }
+
 //     openai
 //       .createCompletion({
-//         model: "text-davinci-002",
+//         model: "text-davinci-003",
 //         prompt,
 //         temperature: 0.6,
 //         max_tokens: 100,
@@ -28,7 +33,41 @@
 //       .then((res) => {
 //         if (res.status === 200) {
 //           setLoading(false);
-//           setResponse(res?.data?.choices[0]?.text);
+//           setResponses((prevResponses) =>
+//             prevResponses.map((response, i) =>
+//               i === index
+//                 ? index === 1
+//                   ? "Generating image..."
+//                   : res?.data?.choices[0]?.text
+//                 : response
+//             )
+//           );
+//           if (index === 1) {
+//             axios
+//               .post("https://api.openai.com/v1/images/generations", {
+//                 model: "image-alpha-001",
+//                 prompt: `${inputTexts[0]} ${inputTexts[1]}`,
+//                 size: "512x512",
+//                 response_format: "url",
+//               }, {
+//                 headers: {
+//                   "Authorization": `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
+//                   "Content-Type": "application/json",
+//                 },
+//               })
+//               .then((res) => {
+//                 if (res.status === 200) {
+//                   setResponses((prevResponses) =>
+//                     prevResponses.map((response, i) =>
+//                       i === index ? res?.data?.data[0]?.url : response
+//                     )
+//                   );
+//                 }
+//               })
+//               .catch((err) => {
+//                 console.log(err, "An error occurred");
+//               });
+//           }
 //         }
 //       })
 //       .catch((err) => {
@@ -40,61 +79,59 @@
 //     <div className="App_">
 //       <div className="header">
 //         <h1 className="header_text">
-//           Chat<span className="text_active">GPT</span>
+//           <span className="text_active">AI UX Design</span>
 //         </h1>
-//         <h2 className="header_summary">Get responses from ChatGPT.</h2>
+//         <h2 className="header_summary">Get your AI-driven consultations.</h2>
 //       </div>
 //       <div className="container">
 //         <div className="text_form">
-//           <form>
+//         <form>
 //             {/* Add multiple input textboxes */}
-//             <label>Enter text:</label>
-//             <br />
-//             <textarea
-//               rows={3}
-//               cols={80}
-//               placeholder="What kind of vibe are you going for with your colours?        "
-//               value={inputTexts[0]}
-//               onChange={(e) =>
-//                 setInputTexts([e.target.value, inputTexts[1], inputTexts[2]])
-//               }
-//             />
-//             <br />
-//             <textarea
-//               rows={3}
-//               cols={80}
-//               placeholder="Describe what you would want from your logo"
-//               value={inputTexts[1]}
-//               onChange={(e) =>
-//                 setInputTexts([inputTexts[0], e.target.value, inputTexts[2]])
-//               }
-//             />
-//             <br />
-//             <textarea
-//               rows={3}
-//               cols={80}
-//               placeholder="What kind of vibe/ambiance do you want with your text?              "
-//               value={inputTexts[2]}
-//               onChange={(e) =>
-//                 setInputTexts([inputTexts[0], inputTexts[1], e.target.value])
-//               }
-//             />
+//             {[0, 1, 2].map((i) => (
+//               <div key={i}>
+//                 <label>Enter text:</label>
+//                 <br />
+//                 <textarea
+//                   rows={3}
+//                   cols={80}
+//                   placeholder={
+//                     i === 0 ? "List the feelings do you want to evoke with colours" : i === 1 ? "What kind of logo do you envision?" : "List the emotions and vibe you want to evoke with your font"
+//                   }
+//                   value={inputTexts[i]}
+//                   onChange={(e) => {
+//                     const newInputTexts = [...inputTexts];
+//                     newInputTexts[i] = e.target.value;
+//                     setInputTexts(newInputTexts);
+//                   }}
+//                 />
+//                 <div>
+//                   <button
+//                     type="button"
+//                     onClick={() => handleSubmit(i)}
+//                     disabled={loading}
+//                   >
+//                     {loading ? "Loading..." : "Submit"}
+//                   </button>
+//                 </div>
+//                 <div className="response_text">
+//                   <label>
+//                     {i === 1 ? "Response from DALL-E" : "Response from ChatGPT"}
+//                   </label>
+//                   {i === 1 && responses[i] ? (
+//                     <img src={responses[i]} alt="Generated image" />
+//                   ) : (
+//                     <textarea
+//                       placeholder={`Response ${i + 1}`}
+//                       cols={80}
+//                       rows={4}
+//                       value={responses[i]}
+//                       readOnly
+//                     />
+//                   )}
+//                 </div>
+//               </div>
+//             ))}
 //           </form>
-//         </div>
-//         <div>
-//           <button type="button" onClick={handleSubmit}>
-//             {loading ? "Loading..." : "Submit"}
-//           </button>
-//         </div>
-//         <div className="response_text">
-//           <label>Response from ChatGPT</label>
-//           <textarea
-//             placeholder="ChatGPT response"
-//             cols={80}
-//             rows={14}
-//             value={response}
-//             readOnly
-//           />
 //         </div>
 //       </div>
 //     </div>
@@ -102,8 +139,9 @@
 // }
 
 // export default App;
-import logo from "./logo.svg";
+
 import "./App.css";
+import axios from "axios";
 import { Configuration, OpenAIApi } from "openai";
 import { useState } from "react";
 
@@ -119,10 +157,17 @@ function App() {
 
   const handleSubmit = (index) => {
     setLoading(true);
-    const prompt = inputTexts[index]; // get prompt for the input at the given index
+    let prompt = inputTexts[index]; // get prompt for the input at the given index
+    if (index === 0) {
+      prompt = "I want colours that will evoke " + prompt+".";
+    }
+    if (index === 2) {
+      prompt = "I want fonts that will evoke " + prompt+". Provide me links to corresponding fonts in Google Fonts.";
+    }
+
     openai
       .createCompletion({
-        model: "text-davinci-002",
+        model: "text-davinci-003",
         prompt,
         temperature: 0.6,
         max_tokens: 100,
@@ -132,9 +177,39 @@ function App() {
           setLoading(false);
           setResponses((prevResponses) =>
             prevResponses.map((response, i) =>
-              i === index ? res?.data?.choices[0]?.text : response
+              i === index
+                ? index === 1
+                  ? "Generating image..."
+                  : res?.data?.choices[0]?.text
+                : response
             )
           );
+          if (index === 1) {
+            axios
+              .post("https://api.openai.com/v1/images/generations", {
+                model: "image-alpha-001",
+                prompt: `${inputTexts[0]} ${inputTexts[1]}`,
+                size: "512x512",
+                response_format: "url",
+              }, {
+                headers: {
+                  "Authorization": `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
+                  "Content-Type": "application/json",
+                },
+              })
+              .then((res) => {
+                if (res.status === 200) {
+                  setResponses((prevResponses) =>
+                    prevResponses.map((response, i) =>
+                      i === index ? res?.data?.data[0]?.url : response
+                    )
+                  );
+                }
+              })
+              .catch((err) => {
+                console.log(err, "An error occurred");
+              });
+          }
         }
       })
       .catch((err) => {
@@ -146,13 +221,13 @@ function App() {
     <div className="App_">
       <div className="header">
         <h1 className="header_text">
-          Chat<span className="text_active">GPT</span>
+          <span className="text_active">AI UX Design</span>
         </h1>
-        <h2 className="header_summary">Get responses from ChatGPT.</h2>
+        <h2 className="header_summary">Get your AI-driven consultations.</h2>
       </div>
       <div className="container">
         <div className="text_form">
-          <form>
+        <form>
             {/* Add multiple input textboxes */}
             {[0, 1, 2].map((i) => (
               <div key={i}>
@@ -161,7 +236,9 @@ function App() {
                 <textarea
                   rows={3}
                   cols={80}
-                  placeholder={`Input ${i + 1}`}
+                  placeholder={
+                    i === 0 ? "List the feelings do you want to evoke with colours" : i === 1 ? "What kind of logo do you envision?" : "List the emotions and vibe you want to evoke with your font"
+                  }
                   value={inputTexts[i]}
                   onChange={(e) => {
                     const newInputTexts = [...inputTexts];
@@ -179,14 +256,20 @@ function App() {
                   </button>
                 </div>
                 <div className="response_text">
-                  <label>Response from ChatGPT</label>
-                  <textarea
-                    placeholder={`Response ${i + 1}`}
-                    cols={80}
-                    rows={4}
-                    value={responses[i]}
-                    readOnly
-                  />
+                  <label>
+                    {i === 1 ? "Response from DALL-E" : "Response from ChatGPT"}
+                  </label>
+                  {i === 1 && responses[i] ? (
+                    <img src={responses[i]} alt="Generated image" />
+                  ) : (
+                    <textarea
+                      placeholder={`Response ${i + 1}`}
+                      cols={80}
+                      rows={4}
+                      value={responses[i]}
+                      readOnly
+                    />
+                  )}
                 </div>
               </div>
             ))}
