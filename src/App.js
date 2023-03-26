@@ -1,8 +1,24 @@
+/* import "./App.css";
+import Navbar from "./components/Navbar";
+import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
+import Home from './pages/Home';
+
+function App() {
+  return (
+    <div className="App">
+      <Navbar />
+    </div>
+  );
+}
+
+export default App; */
 import "./App.css";
 import axios from "axios";
 import { Configuration, OpenAIApi } from "openai";
 import { useState,createRef } from "react";
 import DOMPurify from "dompurify";
+import Logo from './assets/Group 40.svg';
+
 
 
 function App() {
@@ -54,8 +70,6 @@ function App() {
         console.log(err, "An error occurred");
       });
       //console.log(category);
-    /* console.log(category.data.choices[0].text);
-    return category.data.choices[0].text; */
   }
 
   const handleSubmit = (index) => {
@@ -136,14 +150,14 @@ function App() {
     <div className="App_">
       <div className="header">
         <h1 className="header_text">
-          <span className="text_active">AI UX Design</span>
+        <img src={Logo} />
         </h1>
         <h2 className="header_summary">Get your AI-driven consultations.</h2>
       </div>
       <div className="container">
         <div className="text_form">
         <form>
-            {/* Add multiple input textboxes */}
+            { /* Add multiple input textboxes */ }
             {[0, 1, 2].map((i) => (
               <div key={i}>
                 <label>Enter text:</label>
